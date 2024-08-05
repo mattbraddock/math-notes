@@ -1,0 +1,114 @@
+<!doctype html>
+<html dir="ltr" lang="en">
+  <head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<style>
+		h1 {
+			border-bottom: 1px solid #c0c0c0;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			white-space: nowrap;
+		}
+  
+		table {
+			border-collapse: collapse;
+		}
+
+		td {
+			padding: 1px 15px;
+		}
+  
+		td.details {
+			-webkit-padding-start: 2em;
+			text-align: end;
+			white-space: nowrap;
+		}
+		</style>
+		<title id="title">Mr. Braddock's Notes</title>
+	</head>
+	<body>
+	<h1 id="header">Mr. Braddock's Notes<br />Index of <span id="directory">.</span></h1>
+	<table>
+		<thead>
+			<tr class="header" id="theader">
+				<th id="nameColumnHeader" tabindex="0" role="button">Name</th>
+				<th id="typeColumnHeader" class="details" tabindex="0" role="button">Type</th>
+				<th id="sizeColumnHeader" class="details" tabindex="0" role="button">Size</th>
+				<th id="dateColumnHeader" class="details" tabindex="0" role="button">Date Modified</th>
+			</tr>
+		</thead>
+		<tbody id="tbody"></tbody>
+	</table>
+	<script type="module">
+		import files from './files.json' assert { type: 'json' };
+
+		const sizeConvert = size => {
+			if (size < 1e3) return `${size} B`;
+			if (size >= 1e9) return `${Number.parseFloat(size / 1e9).toFixed(1)} GB`;
+			if (size >= 1e6) return `${Number.parseFloat(size / 1e6).toFixed(1)} MB`;
+			return `${Number.parseFloat(size / 1e3).toFixed(1)} KB`;
+		}
+
+		const load = path => {
+			document.getElementById('directory').innerText = path;
+			const tbody = document.getElementById('tbody');
+			tbody.innerHTML = '';
+			const parent = path.replace(/\/[^\/]+$/, '');
+			if (parent !== path) {
+				const row = document.createElement('tr');
+				const name = document.createElement('td');
+				const link = document.createElement('a');
+				link.href = '#';
+				link.addEventListener('click', () => {
+					event.preventDefault();
+					load(parent);
+				})
+				link.innerText = '..';
+				name.appendChild(link);
+				row.appendChild(name);
+				row.appendChild(document.createElement('td'));
+				row.appendChild(document.createElement('td'));
+				row.appendChild(document.createElement('td'));
+				tbody.appendChild(row);
+			}
+			const entries = files[path];
+			entries.forEach(entry => {
+				const row = document.createElement('tr');
+				const name = document.createElement('td');
+				const link = document.createElement('a');
+				if (entry.dir) {
+					link.href = '#';
+					link.addEventListener('click', () => {
+						event.preventDefault();
+						load(entry.path);
+					});
+				} else {
+					link.href = entry.path;
+				}
+				link.innerText = entry.name;
+				name.appendChild(link);
+				row.appendChild(name);
+				const type = document.createElement('td');
+				type.classList.add('details');
+				type.innerText = entry.dir ? 'Folder' : 'File';
+				row.appendChild(type);
+				const size = document.createElement('td');
+				size.classList.add('details');
+				if (!entry.dir) {
+					size.innerText = sizeConvert(entry.size);
+				}
+				row.appendChild(size);
+				const date = document.createElement('td');
+				date.classList.add('details');
+				date.innerText = entry.date;
+				row.appendChild(date);
+				tbody.appendChild(row);
+			});
+		}
+
+		document.addEventListener("DOMContentLoaded", () => {
+			load('.');
+		});
+	</script>
+	</body>
+</html>
