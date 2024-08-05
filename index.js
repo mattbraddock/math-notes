@@ -2,7 +2,9 @@ import { writeFileSync } from 'node:fs';
 import * as fsScandir from '@nodelib/fs.scandir';
 
 const ignore = [
+    '.git',
     '.gitignore',
+    'CNAME',
     'files.json',
     'index.html',
     'index.js',

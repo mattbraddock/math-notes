@@ -39,8 +39,8 @@
 		</thead>
 		<tbody id="tbody"></tbody>
 	</table>
-	<script type="module">
-		import files from './files.json' assert { type: 'json' };
+	<script>
+		let files = {};
 
 		const sizeConvert = size => {
 			if (size < 1e3) return `${size} B`;
@@ -106,7 +106,10 @@
 			});
 		}
 
-		document.addEventListener("DOMContentLoaded", () => {
+		document.addEventListener("DOMContentLoaded", async () => {
+			const response = await fetch('./files.json');
+			const data = await response.json();
+			files = data;
 			load('.');
 		});
 	</script>
